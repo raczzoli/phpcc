@@ -1,6 +1,8 @@
 #ifndef PARSER_H
 #define PARSER_H
 
+#include "lexer.h"
+
 enum ast_node_types {
 	AST_NODE_PROGRAM_START,
 	AST_NODE_VARIABLE,
@@ -34,5 +36,7 @@ struct ast_node_t {
 		
 	} data;
 };
+
+struct ast_node_t *parse_tokens(struct token_t *token);
 
 #endif //PARSER_H
