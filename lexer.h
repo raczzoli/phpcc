@@ -23,6 +23,7 @@ enum token_type_t {
 struct token_t {
 	int type;
 	char *value;
+	struct token_t *before;
 	struct token_t *next;
 };
 
