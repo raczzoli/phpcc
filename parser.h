@@ -4,7 +4,7 @@
 #include "lexer.h"
 
 enum ast_node_types {
-	AST_NODE_PROGRAM_START,
+	AST_NODE_PROGRAM_START=1,
 	AST_NODE_VARIABLE,
 	AST_NODE_LITERAL,
 	AST_NODE_ASSIGNMENT,
@@ -35,8 +35,13 @@ struct ast_node_t {
 		} operation;
 		
 	} data;
+
+	struct ast_node_t **children;
+	int children_len;
 };
 
-struct ast_node_t *parse_tokens(struct token_t *token);
+char *parser_ast_type_str(int type);
+struct ast_node_t *parser_parse_program(struct token_t *token);
+void parser_print_ast(struct ast_node_t *head, int num_tabs);
 
 #endif //PARSER_H

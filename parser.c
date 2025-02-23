@@ -4,7 +4,13 @@
 
 #include "parser.h"
 
-static struct ast_node_t *parse_next(struct token_t **token);
+static struct ast_node_t *parse_statement(struct token_t **token);
+
+static void print_tabs(int num)
+{
+	for (int i=0;i<num;i++)
+		printf("\t");
+}
 
 static struct ast_node_t *create_node(int type)
 {
@@ -18,11 +24,6 @@ static struct ast_node_t *create_node(int type)
 	node->type = type;
 
 	return node;
-}
-
-static struct ast_node_t *create_program_node()
-{
-	return create_node(AST_NODE_PROGRAM_START);
 }
 
 static struct ast_node_t *create_variable(struct token_t *token)
@@ -49,31 +50,59 @@ static struct ast_node_t *create_literal(char *value)
 	return node;
 }
 
-static struct ast_node_t *create_assignment(struct ast_node_t *var_node, struct token_t **expr_token)
+static struct ast_node_t *parse_expression(struct token_t **token)
+{
+	struct ast_node_t *node = NULL;
+	struct token_t *t = *token;
+
+	switch(t->type) {
+		case TOKEN_VARIABLE:
+			node = create_variable(t);
+		break;
+		case TOKEN_NUMBER:
+		case TOKEN_STRING:
+			node = create_literal(t->value);
+		break;
+	}
+
+	if (t->next && t->next->type == TOKEN_OPERATOR) {
+		*token = t->next->next;
+
+		struct ast_node_t *tmp = create_node(AST_NODE_OPERATION);
+		
+		tmp->data.operation.operator = t->next->value;
+		tmp->data.operation.left = node;
+		tmp->data.operation.right = parse_expression(token);
+
+		node = tmp;
+	}
+	else 
+		*token = (*token)->next;
+
+	return node;
+}
+
+static struct ast_node_t *parse_assignment(struct ast_node_t *var_node, struct token_t **expr_token)
 {
 	struct ast_node_t *node = create_node(AST_NODE_ASSIGNMENT);
 
 	if (!node)
 		return NULL;
 
-	printf("CREATE ASSIGNMENT: var: %s\n", var_node->data.variable.name);
-
 	*expr_token = (*expr_token)->next;
 
 	node->data.assignment.variable = var_node;
-	node->data.assignment.expression = parse_next(expr_token);
+	node->data.assignment.expression = parse_expression(expr_token);
 
 	if (!node->data.assignment.expression) {
 		printf("Invalid expression!\n");
 		return NULL;
 	}
 
-	printf("expression = %s\n", node->data.assignment.expression->data.literal.value);
-
 	return node;
 }
 
-static struct ast_node_t *parse_next(struct token_t **token)
+static struct ast_node_t *parse_statement(struct token_t **token)
 {
 	struct token_t *t = *token;
 	struct ast_node_t *node = NULL;
@@ -85,7 +114,7 @@ static struct ast_node_t *parse_next(struct token_t **token)
 			node = create_variable(t);
 
 			if (t->next && t->next->type == TOKEN_ASSIGN) {
-				node = create_assignment(node, token);
+				node = parse_assignment(node, token);
 			}
 		break;
 
@@ -102,17 +131,88 @@ static struct ast_node_t *parse_next(struct token_t **token)
 	return node;
 }
 
-struct ast_node_t *parse_tokens(struct token_t *token)
+struct ast_node_t *parser_parse_program(struct token_t *token)
 {
 	struct ast_node_t *node = NULL;
-	struct ast_node_t *head = create_program_node();
+	struct ast_node_t *head = create_node(AST_NODE_PROGRAM_START);
 
 	if (!head) 
 		return NULL;
 
 	while (token) {
-		parse_next(&token);
+		node = parse_statement(&token);
+
+		if (!node)
+			continue;
+
+		if (!head->children) 
+			head->children = calloc(1, sizeof(struct ast_node_t *));
+		else 
+			head->children = realloc(head->children, (head->children_len+1) * sizeof(struct ast_node_t *));
+
+		if (!head->children) {
+			printf("Error allocating memory for program node children array!");
+			return NULL;
+		}
+
+		head->children[head->children_len] = node;
+		head->children_len++;
 	}
 
-	return node;
+	return head;
+}
+
+char *parser_ast_type_str(int type)
+{
+	switch(type) {
+		case AST_NODE_PROGRAM_START : return "PROGRAM START";
+		case AST_NODE_VARIABLE : return "VARIABLE";
+		case AST_NODE_LITERAL : return "LITERAL";
+		case AST_NODE_ASSIGNMENT : return "ASSIGNMENT";
+		case AST_NODE_OPERATION : return "OPERATION";
+	}
+
+	return "";
+}
+
+void parser_print_ast(struct ast_node_t *head, int num_tabs)
+{
+	if (!head)
+		return;
+
+	char *type_str = parser_ast_type_str(head->type);
+
+	print_tabs(num_tabs);
+	printf("|- %s", type_str);
+
+	switch(head->type) {
+		case AST_NODE_ASSIGNMENT:
+			printf("\n");
+			struct ast_node_t *var = head->data.assignment.variable;
+
+			parser_print_ast(var, num_tabs+1);
+			parser_print_ast(head->data.assignment.expression, num_tabs+1);			
+		break;
+		case AST_NODE_OPERATION:
+			printf("\n");
+			print_tabs(num_tabs+1);
+			printf("|- OPERATOR: %s\n", head->data.operation.operator);
+			parser_print_ast(head->data.operation.left, num_tabs+1);
+			parser_print_ast(head->data.operation.right, num_tabs+1);
+		break;
+		case AST_NODE_LITERAL:
+			printf(": %s", head->data.literal.value);
+		break;
+		case AST_NODE_VARIABLE:
+			printf(": %s", head->data.variable.name);
+		break;
+	}
+
+	printf("\n");
+
+	if (head->children_len > 0) {
+		for (int i=0;i<head->children_len;i++) {
+			parser_print_ast(head->children[i], num_tabs+1);
+		}
+	}
 }

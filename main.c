@@ -4,21 +4,28 @@
 #include "lexer.h"
 #include "parser.h"
 
-char *source = "$a = 10;\n$b = 20;\n$x = $a + $b;\n$y = $b - $a;$str = \"hello world\";";
+char *source = "$a = 10;\n$b = 20;\n$x = $a + $b;\n$y = $b - $a;\n$z = $a + $b + 10;\n$z1 =$a;\n$str = \"hello world\";";
 
 int main()
 {
-	struct token_t *head = lexer_parse(source);
-	struct token_t *token = head;
+	struct ast_node_t *ast_head = NULL;
+	struct token_t *token_head = lexer_parse(source);
 	
+	/*
+	struct token_t *token = token_head;
+
 	printf("\n******* LEXER INFO *******\n");
 	while (token) {
 		printf("token: \"%s\" (type: %s)\n", token->value, lexer_token_type_str(token->type));
 		token = token->next;
 	}
+	*/
 	
 	printf("\n******* PARSE INFO *******\n");
-	parse_tokens(head);
+	ast_head = parser_parse_program(token_head);
+
+	if (ast_head)
+		parser_print_ast(ast_head, 0);
 
 	return 0;
 }

@@ -16,7 +16,7 @@ enum token_type_t {
 	TOKEN_OPERATOR,
 
 	// invalid
-	TOKEN_INVALID;
+	TOKEN_INVALID
 };
 
 
