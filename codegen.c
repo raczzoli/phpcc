@@ -79,7 +79,7 @@ struct codegen_result *codegen_generate(struct ast_node_t *node)
 	int ret = 0;
 
 	if (node->type != AST_NODE_PROGRAM_START) {
-		printf("Invalid AST structure (type of PROGRAM_START)");
+		printf("Invalid AST structure (type of PROGRAM_START expected at the beginning of the tree)!\n");
 		return NULL;
 	}
 
