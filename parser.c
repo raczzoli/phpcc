@@ -63,6 +63,8 @@ static struct ast_node_t *parse_expression(struct token_t **token)
 		case TOKEN_STRING:
 			node = create_literal(t->value);
 		break;
+		default:
+			; // invalid expression or unhandled type for the moment
 	}
 
 	if (t->next && t->next->type == TOKEN_OPERATOR) {
@@ -94,10 +96,12 @@ static struct ast_node_t *parse_assignment(struct ast_node_t *var_node, struct t
 	node->data.assignment.variable = var_node;
 	node->data.assignment.expression = parse_expression(expr_token);
 
+	/* we will let the semantic analizor to handle the invalid expression
 	if (!node->data.assignment.expression) {
 		printf("Invalid expression!\n");
 		return NULL;
 	}
+	*/
 
 	return node;
 }
@@ -177,12 +181,15 @@ char *parser_ast_type_str(int type)
 
 void parser_print_ast(struct ast_node_t *head, int num_tabs)
 {
-	if (!head)
+	print_tabs(num_tabs);
+
+	if (!head) {
+		printf("|- INVALID");
 		return;
+	}
 
 	char *type_str = parser_ast_type_str(head->type);
 
-	print_tabs(num_tabs);
 	printf("|- %s", type_str);
 
 	switch(head->type) {

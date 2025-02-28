@@ -78,6 +78,8 @@ struct token_t *get_next_token(char **str)
 		if (end != NULL) {
 			token->type = TOKEN_STRING;
 			token->value = strndup(start, end-start);
+
+			(*str) = end + 1;
 		}
 		else 
 			token->type = TOKEN_INVALID;
@@ -93,7 +95,6 @@ struct token_t *get_next_token(char **str)
 
 		(*str)++;
 	}
-
 	/** 
 	** SEMICOLON
 	*/
@@ -111,6 +112,7 @@ struct token_t *get_next_token(char **str)
 	** SOMETHING ELSE (maybe invalid char)
 	*/
 	else {
+		printf("char is: %c\n", c);
 		return NULL;
 	}
 
