@@ -35,11 +35,14 @@ static struct ast_node_t *create_variable(struct token_t *token)
 		return NULL;
 
 	node->data.variable.name = strdup(token->value);
+	node->data.variable.name_len = strlen(node->data.variable.name);
+	// TODO - needs to be determined (obviously)
+	node->data.variable.type = INTEGER;
 
 	return node;
 }
 
-static struct ast_node_t *create_literal(char *value)
+static struct ast_node_t *create_literal(char *value, int type)
 {
 	struct ast_node_t *node = create_node(AST_NODE_LITERAL);
 
@@ -47,6 +50,8 @@ static struct ast_node_t *create_literal(char *value)
 		return NULL;
 
 	node->data.literal.value = strdup(value);
+	node->data.literal.value_len = strlen(node->data.literal.value);
+	node->data.literal.type = type == TOKEN_NUMBER ? LIT_NUMBER : LIT_STRING;
 
 	return node;
 }
@@ -62,7 +67,7 @@ static struct ast_node_t *parse_expression(struct token_t **token)
 		break;
 		case TOKEN_NUMBER:
 		case TOKEN_STRING:
-			node = create_literal(t->value);
+			node = create_literal(t->value, t->type);
 		break;
 		default:
 			; // invalid expression or unhandled type for the moment
@@ -125,7 +130,7 @@ static struct ast_node_t *parse_statement(struct token_t **token)
 
 		case TOKEN_NUMBER:
 		case TOKEN_STRING:
-			node = create_literal(t->value);
+			node = create_literal(t->value, t->type);
 		break;
 
 		case TOKEN_SEMICOLON: // no break

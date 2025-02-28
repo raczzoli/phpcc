@@ -12,16 +12,31 @@ enum ast_node_types {
 	AST_NODE_INVALID
 };
 
+enum var_data_types {
+	INTEGER=1,
+	FLOAT,
+	STRING
+};
+
+enum literal_types {
+	LIT_NUMBER, 
+	LIT_STRING
+};
+
 struct ast_node_t {
 	int type;
 
 	union {
 		struct {
 			char *name;
+			int name_len;
+			enum var_data_types type;
 		} variable;
 
 		struct {
 			char *value;
+			int value_len;
+			enum literal_types type;
 		} literal;
 
 		struct {
