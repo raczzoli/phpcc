@@ -27,17 +27,6 @@ static int generate(struct codegen_result *res, struct ast_node_t *node)
 
 	switch(node->type) {
 		case AST_NODE_VARIABLE:
-			switch(node->data.variable.type) {
-				case INTEGER:
-					strcat(res->buffer, "int ");
-				break;
-				case FLOAT:
-					strcat(res->buffer, "float ");
-				break;
-				case STRING:
-					strcat(res->buffer, "char *");
-				break;
-			}
 			strncat(res->buffer, node->data.variable.name, node->data.variable.name_len);
 		break;
 		case AST_NODE_LITERAL:
