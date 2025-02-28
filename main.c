@@ -4,7 +4,7 @@
 #include "lexer.h"
 #include "parser.h"
 
-char *source = "$a = 10;\n$b = 20;\n$x = $a + $b;\n$y = $b - $a;\n$z = $a + $b + 10;\n$z1 =$a;\n$str = \"hello world\";$oo = ;";
+char *source = "$a = 10;\n$b = 20;\n$x = $a + $b;\n$y = $b - $a;\n$z = $a + $b + 10;\n$z1 =$a;\n$str = \"hello world\";$oo = ;$xxx = 15;";
 
 int main()
 {

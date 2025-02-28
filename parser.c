@@ -21,6 +21,7 @@ static struct ast_node_t *create_node(int type)
 		return NULL;
 	}
 
+	node->children_len = 0;
 	node->type = type;
 
 	return node;
@@ -196,7 +197,6 @@ void parser_print_ast(struct ast_node_t *head, int num_tabs)
 		case AST_NODE_ASSIGNMENT:
 			printf("\n");
 			struct ast_node_t *var = head->data.assignment.variable;
-
 			parser_print_ast(var, num_tabs+1);
 			parser_print_ast(head->data.assignment.expression, num_tabs+1);			
 		break;
