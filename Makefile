@@ -7,7 +7,7 @@ LDFLAGS =
 TARGET = phpcc
 
 # Source files
-SRCS = main.c lexer.c parser.c
+SRCS = main.c lexer.c parser.c semantic.c codegen.c
 OBJS = $(SRCS:.c=.o)
 
 # Default target
