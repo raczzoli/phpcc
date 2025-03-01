@@ -24,7 +24,9 @@ struct symbol {
 	struct symbol *prev;
 };
 
-int symbol_insert(struct ast_node_t *var);
-struct symbol *symbol_lookup(struct ast_node_t *var);
+struct symbol *symbol_create_table_entry();
+struct symbol *symbol_insert(struct symbol *parent, struct ast_node_t *var);
+struct symbol *symbol_lookup(struct symbol *entry, struct ast_node_t *var);
+void symbol_print_table(struct symbol *head);
 
 #endif //SYMBOL_H
