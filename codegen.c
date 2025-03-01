@@ -62,7 +62,7 @@ static int generate(struct codegen_result *res, struct ast_node_t *node)
 	return 0;
 }
 
-struct codegen_result *codegen_generate(struct ast_node_t *node)
+struct codegen_result *codegen_generate(struct ast_node_t *node, struct symbol *symbol_table_head)
 {
 	struct codegen_result *res = NULL;
 	int ret = 0;
