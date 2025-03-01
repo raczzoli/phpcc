@@ -4,6 +4,7 @@
 
 #include "parser.h"
 
+
 static struct ast_node_t *parse_statement(struct token_t **token);
 
 static void print_tabs(int num)
